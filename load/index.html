@@ -1,11 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSRP</title>
+
+    <script src="https://kit.fontawesome.com/2e913fa43b.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="./css/style.css">
 </head>
+
 <body>
-    
+    <audio autoplay loop id='music'>
+        <source src="music/back.mp3" type="audio/mp3">
+    </audio>
+    <div id="app">
+        <img src="./img/oregon-state-seal.png" alt="" width='200px' height='200px'>
+        <div class="center">
+            <h1>Oregon State Roleplay</h1>
+            <h4 id='motto'>"She Flies With Her Own Wings"</h4>
+        </div>
+
+        <div class="bottom">
+            <h4><i class="fab fa-discord"></i> discord.gg/gdYurKd7vs</h4>
+        </div>
+
+        <div class="bottom-right">
+            <p id='playing' style='padding-left: 5px;'>Music is playing, you can mute it by pressing the spacebar.</p>
+            <div class="progress">
+                <div style='width: 15px;' id='progress-bar' class="progress-value"></div>
+            </div>
+            <p id='load' style='padding-left: 5px;'>Loading [ ... ]</p>
+        </div>
+    </div>
+
+    <script type='text/javascript'>
+        var app = $("#app");
+        var load = $("#load");
+        var bar = $("#progress-bar");
+        var motto = $("#motto");
+        var music = document.getElementById("music");
+        var plying = $("#playing");
+
+        // music.load();
+
+        try {
+            if (music.readyState == 4) {
+                music.focus();
+                setTimeout(() => {
+                    music.play().catch(retry);
+                }, 1000)
+            } else {
+                music.addEventListener('load', () => {
+                    music.focus();
+                    setTimeout(() => {
+                        music.play().catch(retry);
+                    }, 1000)
+                })
+            };
+        } catch (e) {
+            retry();
+        }
+
+        function retry() {
+            setInterval(() => {
+                try {
+                    if (music.paused && playing != false) {
+                        music.play()
+                    }
+                } catch (e) {
+                    // empty
+                }
+            }, 1000)
+        }
+
+        load.text(`Waiting for FiveM...`)
+
+        var func = 0;
+        var count = 0;
+
+        const handlers = {
+            startInitFunctionOrder(data) {
+                func = data.count;
+
+                load.text(`Loading function data...`)
+            },
+
+            initFunctionInvoking(data) {
+                bar.css({
+                    width: ((data.idx / func) * 100) + "%"
+                })
+                load.text(`Invoking function ${data.idx} out of ${func}...`)
+            },
+
+            startDataFileEntries(data) {
+                func = data.count;
+
+                load.text(`Loading map data...`)
+            },
+
+            performMapLoadFunction(data) {
+                count++;
+
+                bar.css({
+                    width: ((count / func) * 100) + "%"
+                });
+                load.text(`Performing map load ${count} out of ${func}...`);
+            },
+
+            onLogLine(data) {
+                // not sure what this is lmao
+            }
+        };
+
+        window.addEventListener('message', function(e) {
+            (handlers[e.data.eventName] || function() {})(e.data);
+        });
+
+        // Music
+        var playing = true;
+
+        window.addEventListener("keydown", (event) => {
+            if (event.code == "Space") {
+                if (playing)
+                    return plying.text("Music is stopped, you can unmute it by pressing the spacebar."), playing = false, music.pause();
+
+                playing = true;
+                plying.text("Music is playing, you can mute it by pressing the spacebar.")
+                return music.play();
+            }
+        })
+    </script>
 </body>
+
 </html>

@@ -2,7 +2,8 @@ files {
     'load/index.html',
     'load/css/style.css',
     'load/music/load.mp3',
-    'load/img/background.jpg'
+    'load/img/background.jpg',
+    'load/img/oregon-state-seal.png'
 }
 
 loadscreen 'load/index.html'
